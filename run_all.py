@@ -2,13 +2,12 @@
 # -*- coding: utf-8 -*-
 
 """ © Ihor Mirzov, February 2020
-Ctrl + F5 to Run all test scripts in the example collection """
+Run all test scripts in the example collection
+Ctrl + F5 in Visual Studio Code """
 
 import os
-import sys
 import fnmatch
 import time
-import shutil
 import subprocess
 import signal
 
@@ -109,11 +108,10 @@ class RunAllTests:
                 f.writelines(lines)
 
 
-    # Recursively list all .ext-files
-    # starting from 'start_folder'
-    def scan(self, start_folder, ext):
+    # Recursively list .ext-files in 'folder'
+    def scan(self, folder, ext):
         all_files = []
-        for f in os.scandir(start_folder):
+        for f in os.scandir(folder):
             if f.is_dir():
                 for ff in self.scan(f.path, ext):
                     all_files.append(ff)
@@ -122,7 +120,7 @@ class RunAllTests:
         return sorted(all_files)[:self.limit]
 
 
-    # Kill gv windows after cgx graph command
+    # Kill gv windows after cgx 'graph' command
     def kill_gv(self, name):
         try:
             plist = subprocess.check_output(['pidof', name])
@@ -133,36 +131,6 @@ class RunAllTests:
         # No such process
         except:
             pass
-
-
-    # Check relpath from example folder to Scripts
-    def check_rel_path(self, start_folder, scripts_dir, mask):
-        counter = 1
-        for file_name in self.scan(start_folder, mask):
-
-            # Relative path from test.py to Scripts folder
-            relpath1 = os.path.relpath(scripts_dir,
-                start=os.path.dirname(file_name))
-
-            # Relative path to test.py
-            relpath2 = os.path.relpath(file_name, start=os.curdir)
-
-            print('\n{}: {}\n'
-                .format(counter, relpath2))
-            counter += 1
-
-            # Check relpath in test.py code
-            OK = True
-            with open(file_name, 'r') as f:
-                for line in f.readlines():
-                    line = line.strip()
-                    if line.startswith('sys') and 'Scripts' in line:
-                        command = line[4:].split()[0]
-                        if not os.path.dirname(command) == relpath1:
-                            print('ERROR', relpath1, command)
-                            OK = False
-            if OK:
-                print('OK')
 
 
     # Run all tests
@@ -195,11 +163,6 @@ class RunAllTests:
             self.erase_command(flist3, 'Exit;')
             self.append_command(self.scripts_dir, 'monitor.py', 'pylab.show()')
 
-            # # Check relpath from example folder to Scripts
-            # self.check_rel_path(self.start_folder, self.scripts_dir, 'test.py')
-            # self.check_rel_path(self.start_folder, self.scripts_dir, '.fbd')
-            # self.check_rel_path(self.start_folder, self.scripts_dir, '.fbl')
-
             # Kill gv windows after cgx graph command
             self.kill_gv('gs')
             self.kill_gv('gv')
@@ -210,17 +173,12 @@ class RunAllTests:
 
 
 if __name__ == '__main__':
-    start = time.perf_counter() # start time
-
-    # This will run all examples
+    limit = 1 # how many files to process
     start_folder = os.path.dirname(__file__)
-    limit = 1000000 # how many files to process
-
-    # # This will run one example only
     # start_folder = os.path.dirname(__file__) \
     #     + '/Elements/Solid'
-    # limit = 1 # how many files to process
 
+    start = time.perf_counter() # start time
     auto = RunAllTests(limit, start_folder)
     auto.run()
 
