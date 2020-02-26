@@ -1,5 +1,7 @@
-TODO.md
 /**/Refs
+
+# Visual Studio Code settings
+*.vscode
 
 # # CalculiX generated files
 # *.12d
@@ -20,9 +22,6 @@ TODO.md
 # *.out
 # *.sta
 # *.sur
-
-# # Visual Studio Code settings
-*.vscode
 
 # Other generated files
 *.log
